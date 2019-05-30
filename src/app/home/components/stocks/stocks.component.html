@@ -1,0 +1,6 @@
+<button style="margin: 0 1em" mat-raised-button color="accent" (click)="openStockDialog()">Add Stocks</button>
+<button style="margin: 0 1em" mat-raised-button color="primary" (click)="setSelectedList('positions')">Positions</button>
+<button style="margin: 0 1em" mat-raised-button color="primary" (click)="setSelectedList('sell_orders')">Sell Orders</button>
+<button style="margin: 0 1em" mat-raised-button color="primary" (click)="setSelectedList('buy_orders')">Buy Orders</button>
+
+<app-stock-table [listType$]="listType$" [stocks$]="selectedList$"></app-stock-table>

@@ -1,0 +1,23 @@
+<section>
+  <h1>TickerBandit</h1>
+  <span *ngIf="(RH.account$ | async)">
+    <div class="account-value">
+      <span class="type">Equity<app-change-ticker [after]="(RH.account$ | async)?.portfolio.equity"
+          [before]="(RH.account$ | async)?.portfolio.equity_previous_close"></app-change-ticker></span>
+      <span class="dollars">{{(RH.account$ | async)?.portfolio.equity | currency}}
+      </span>
+    </div>
+    <div class="account-value">
+      <span class="type">Market Value</span>
+      <span class="dollars">{{(RH.account$ | async)?.portfolio.market_value | currency}}</span>
+    </div>
+    <div class="account-value">
+      <span class="type">Buying Power</span>
+      <span class="dollars">{{(RH.account$ | async)?.portfolio.calculated_buying_power | currency}}</span>
+    </div>
+    <div class="account-value">
+      <button mat-button (click)="RH.refresh()"><i class="fa fa-sync"></i></button>
+      <span class="dollars"> </span>
+    </div>
+  </span>
+</section>

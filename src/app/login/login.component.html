@@ -1,0 +1,27 @@
+<mat-card>
+  <h1 style="text-align:center;font-size:2em">TickerBandit</h1>
+  <form *ngIf="!loggingIn" [formGroup]="loginForm" (ngSubmit)="login()">
+    <mat-form-field>
+      <input matInput [formControl]="username" placeholder="Robinhood Username">
+    </mat-form-field>
+    <mat-form-field>
+      <input autocomplete="current-password" type="password" matInput [formControl]="password"
+        placeholder="Robinhood Password">
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="username.invalid || password.invalid">
+      Agree to Terms and Login
+    </button>
+  </form>
+
+  <p style="text-align: center;">By logging in you are allowing TickerBandit to access all of your Robinhood
+    acount information and perform operations on your behalf. </p>
+
+  <p style="text-align: center;">Use at you own risk. TickerBandit assumes no responsibily for any losses incurred
+    while using this application.</p>
+
+  <p style="text-align: center;">TickerBandit does not save passwords. Once authenticated, TickerBandit stores an
+    authorization token that is used to perform Robinhood account operations. This token can be revoked by the user at
+    anytime or when the user disconnects.</p>
+
+  <p style="text-align: center;">TickerBandit is not affiliated with Robinhood in any way.</p>
+</mat-card>

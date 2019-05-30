@@ -1,0 +1,5 @@
+<app-navtop></app-navtop>
+<section>
+  <app-home *ngIf="(RH.auth$|async)"></app-home>
+  <app-login *ngIf="!(RH.auth$|async)"></app-login>
+</section>

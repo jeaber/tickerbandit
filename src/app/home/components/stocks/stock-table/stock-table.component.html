@@ -1,0 +1,241 @@
+<div style="text-align: center;float:right;display:inline-flex">
+  <mat-form-field>
+    <mat-select placeholder="Fundamentals" [formControl]="fundamentalsControl" multiple>
+      <mat-select-trigger>
+        {{fundamentalsControl.value ? fundamentalsControl.value[0] : ''}}
+        <span *ngIf="fundamentalsControl.value?.length > 1" class="example-additional-selection">
+          (+{{fundamentalsControl.value.length - 1}} {{fundamentalsControl.value?.length === 2 ? 'other' : 'others'}})
+        </span>
+      </mat-select-trigger>
+      <mat-option *ngFor="let key of fundamentalsColumnsKeys" [value]="key">{{fundamentalsColumns[key].name}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field style="padding-left:1em">
+    <mat-select placeholder="Quote Fields" [formControl]="quoteControl" multiple>
+      <mat-select-trigger>
+        {{quoteControl.value ? quoteControl.value[0] : ''}}
+        <span *ngIf="quoteControl.value?.length > 1" class="example-additional-selection">
+          (+{{quoteControl.value.length - 1}} {{quoteControl.value?.length === 2 ? 'other' : 'others'}})
+        </span>
+      </mat-select-trigger>
+      <mat-option *ngFor="let key of quoteColumnsKeys" [value]="key">{{quoteColumns[key].name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field style="padding-left:1em">
+    <mat-select placeholder="Position Fields" [formControl]="positionControl" multiple>
+      <mat-select-trigger>
+        {{positionControl.value ? positionControl.value[0] : ''}}
+        <span *ngIf="positionControl.value?.length > 1" class="example-additional-selection">
+          (+{{positionControl.value.length - 1}} {{positionControl.value?.length === 2 ? 'other' : 'others'}})
+        </span>
+      </mat-select-trigger>
+      <mat-option *ngFor="let key of positionColumnsKeys" [value]="key">{{positionColumns[key].name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field style="padding-left:1em">
+    <mat-select placeholder="Order Fields" [formControl]="orderControl" multiple>
+      <mat-select-trigger>
+        {{orderControl.value ? orderControl.value[0] : ''}}
+        <span *ngIf="orderControl.value?.length > 1" class="example-additional-selection">
+          (+{{orderControl.value.length - 1}} {{orderControl.value?.length === 2 ? 'other' : 'others'}})
+        </span>
+      </mat-select-trigger>
+      <mat-option *ngFor="let key of orderColumnsKeys" [value]="key">{{orderColumns[key].name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+<div class="mat-elevation-z8">
+
+  <table mat-table matSort [dataSource]="dataSource$ | async" multiTemplateDataRows>
+    <!-- Score Column -->
+    <ng-container matColumnDef="risk_score">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Risk Score </th>
+      <td mat-cell *matCellDef="let stock">
+        <span [matTooltip]="getScoreTooltip(stock.scores.risk.data)">{{stock?.scores?.risk?.score | percent}}</span>
+      </td>
+    </ng-container>
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="symbol">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Symbol </th>
+      <td mat-cell *matCellDef="let stock">
+        {{stock?.symbol}}
+      </td>
+    </ng-container>
+    <!-- Fundamentals -->
+    <ng-container matColumnDef="{{ key }}" *ngFor="let key of fundamentalsColumnsKeys">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ fundamentalsColumns[key].name }} </th>
+      <td mat-cell *matCellDef="let stock">
+        <span *ngIf="fundamentalsColumns[key].pipe === 'currency'">
+          <span> {{stock?.fundamentals[key] | currency}} </span>
+          <app-change-ticker style="clear:both" *ngIf="key === 'open'" [after]="stock?.fundamentals[key]"
+            [before]="stock?.quote.previous_close"></app-change-ticker>
+        </span>
+        <span *ngIf="fundamentalsColumns[key].pipe === 'number:hr'">
+          <span> {{stock?.fundamentals[key] | humanreadable}} </span>
+          <app-change-ticker style="clear:both" *ngIf="key === 'average_volume_2_weeks'"
+            [after]="stock?.fundamentals.average_volume_2_weeks" [before]="stock?.fundamentals.average_volume">
+          </app-change-ticker>
+        </span>
+        <span *ngIf="fundamentalsColumns[key].pipe === 'percent'">
+          <span> {{stock?.fundamentals[key]/100 | percent:'1.0-1'}} </span>
+        </span>
+        <span *ngIf="fundamentalsColumns[key].pipe === 'number'">
+          <span> {{stock?.fundamentals[key] | number:'1.0-2'}} </span>
+        </span>
+        <span *ngIf="fundamentalsColumns[key].pipe === ''">
+          <span> {{stock?.fundamentals[key]}} </span>
+        </span>
+      </td>
+    </ng-container>
+    <!-- Quote Feilds -->
+    <ng-container matColumnDef="{{ key }}" *ngFor="let key of quoteColumnsKeys">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ quoteColumns[key].name }} </th>
+      <td mat-cell *matCellDef="let stock">
+        <span *ngIf="quoteColumns[key].pipe === 'currency'">
+          <span> {{stock?.quote[key] | currency}} </span>
+          <span *ngIf="key == 'ask_price'"> ({{stock?.quote.ask_size | number}}) </span>
+          <span *ngIf="key == 'bid_price'"> ({{stock?.quote.bid_size | number}}) </span>
+          <app-change-ticker style="clear:both" *ngIf="key === 'last_trade_price'"
+            [after]="stock?.quote.last_trade_price" [before]="stock?.quote.previous_close"></app-change-ticker>
+        </span>
+        <span *ngIf="quoteColumns[key].pipe === 'number:hr'">
+          <span> {{stock?.quote[key] | humanreadable}} </span>
+        </span>
+        <span *ngIf="quoteColumns[key].pipe === 'percent'">
+          <span> {{stock?.quote[key]/100 | percent:'1.0-1'}} </span>
+        </span>
+        <span *ngIf="quoteColumns[key].pipe === 'number'">
+          <span> {{stock?.quote[key] | number:'1.0-2'}} </span>
+        </span>
+        <span *ngIf="quoteColumns[key].pipe === ''">
+          <span> {{stock?.quote[key]}} </span>
+        </span>
+      </td>
+    </ng-container>
+    <!-- Position Feilds -->
+    <ng-container matColumnDef="{{ key }}" *ngFor="let key of positionColumnsKeys">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ positionColumns[key].name }} </th>
+      <td mat-cell *matCellDef="let stock">
+        <span *ngIf="stock?.position">
+          <span *ngIf="!positionColumns[key].custom">
+            <span *ngIf="positionColumns[key].pipe === 'currency'">
+              <span> {{stock?.position[key] | currency}} </span>
+              <app-change-ticker style="clear:both" *ngIf="key === 'price'" [after]="stock?.position.price"
+                [before]="stock?.quote.last_trade_price"></app-change-ticker>
+            </span>
+            <span *ngIf="positionColumns[key].pipe === 'number:hr'">
+              <span> {{stock?.position[key] | humanreadable}} </span>
+            </span>
+            <span *ngIf="positionColumns[key].pipe === 'percent'">
+              <span> {{stock?.position[key]/100 | percent:'1.0-1'}} </span>
+            </span>
+            <span *ngIf="positionColumns[key].pipe === 'number'">
+              <span> {{stock?.position[key] | number:'1.0-2'}} </span>
+            </span>
+            <span *ngIf="positionColumns[key].pipe === ''">
+              <span> {{stock?.position[key]}} </span>
+            </span>
+          </span>
+          <span *ngIf="positionColumns[key].custom">
+            <span *ngIf="key === 'total_value'"> {{stock?.position?.total_value | currency}} </span>
+            <span *ngIf="key === 'total_change'">
+              <app-change-ticker style="clear:both" [after]="stock?.position.total_value"
+                [before]="(getFloat(stock?.position.quantity) * getFloat(stock?.position.average_buy_price))">
+              </app-change-ticker>
+            </span>
+          </span>
+        </span>
+      </td>
+    </ng-container>
+    <!-- Order Feilds -->
+    <ng-container matColumnDef="{{ key }}" *ngFor="let key of orderColumnsKeys">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ orderColumns[key].name }} </th>
+      <td mat-cell *matCellDef="let stock">
+        <span *ngIf="stock?.order">
+          <span *ngIf="!orderColumns[key].custom">
+            <span *ngIf="orderColumns[key].pipe === 'currency'">
+              <span> {{stock?.order[key] | currency}} </span>
+              <app-change-ticker style="clear:both" *ngIf="key === 'price'" [after]="stock?.order[key]"
+                [before]="stock?.quote.last_trade_price"></app-change-ticker>
+            </span>
+            <span *ngIf="orderColumns[key].pipe === 'number:hr'">
+              <span> {{stock?.order[key] | humanreadable}} </span>
+            </span>
+            <span *ngIf="orderColumns[key].pipe === 'percent'">
+              <span> {{stock?.order[key]/100 | percent:'1.0-1'}} </span>
+            </span>
+            <span *ngIf="orderColumns[key].pipe === 'number'">
+              <span> {{stock?.order[key] | number:'1.0-2'}} </span>
+              <span *ngIf="key === 'order_quantity'">
+                {{stock?.order.quantity | number:'1.0-2'}}
+              </span>
+            </span>
+            <span *ngIf="orderColumns[key].pipe === 'date'">
+              <span> {{stock?.order[key] | date}} </span>
+            </span>
+            <span *ngIf="orderColumns[key].pipe === ''">
+              <span> {{stock?.order[key]}} </span>
+            </span>
+          </span>
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Active Orders Feilds -->
+    <ng-container matColumnDef="active_orders">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Active Orders </th>
+      <td mat-cell *matCellDef="let stock">
+        <span *ngIf="stock?.activeOrders">
+          <span *ngFor="let order of stock.activeOrders">
+            {{order.side.toUpperCase()}} {{order.quantity | number:'1.0-1'}} @{{order.price | currency}}
+          </span>
+        </span>
+      </td>
+    </ng-container>
+    <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let stock" [attr.colspan]="(displayedColumns$ | async)?.length">
+        <div class="example-element-detail" [@detailExpand]="stock == expandedElement ? 'expanded' : 'collapsed'">
+          <div class="example-element-description">
+            <div>
+              <button mat-raised-button color="accent" (click)="openStockActionsModial(stock)">Trade</button>
+              <button *ngIf="stock.order && (stock.order.state === 'pending' || stock.order.state === 'queued')"
+                mat-raised-button color="primary" (click)="cancelOrder(stock.order)">Cancel</button>
+            </div>
+            {{(stock?.fundamentals.description)}}
+          </div>
+          <div *ngIf="stock?.dividends?.data?.length > 0">
+            <h4 style="text-align:center">Dividends</h4>
+            <app-eps-div-chart *ngIf="stock == expandedElement" [div]="stock?.dividends">
+            </app-eps-div-chart>
+          </div>
+          <div *ngIf="stock?.eps?.data?.length > 0">
+            <h4 style="text-align:center">
+              Yearly EPS
+            </h4>
+            <app-eps-div-chart *ngIf="stock == expandedElement" [eps]="stock?.eps">
+            </app-eps-div-chart>
+          </div>
+          <div class="element-tradingview-widget">
+            <app-tradingview-widget *ngIf="stock == expandedElement" [instrument]="(stock?.instrument)">
+            </app-tradingview-widget>
+          </div>
+        </div>
+
+      </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="(displayedColumns$ | async)"></tr>
+    <tr mat-row *matRowDef="let symbol; columns: (displayedColumns$ | async);" class="example-element-row"
+      [class.example-expanded-row]="expandedElement === symbol"
+      (click)="expandedElement = expandedElement === symbol ? null : symbol">
+    </tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+  </table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>

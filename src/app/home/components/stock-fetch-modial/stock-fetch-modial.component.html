@@ -1,0 +1,20 @@
+<section style="text-align: center;">
+  <div style="display:inline-flex">
+    <mat-form-field style="width:20em">
+      <input (keyup.enter)="fetchFinvizUrl()" matInput [formControl]="finvizUrlControl">
+    </mat-form-field>
+    <button style="height: 3em;" [disabled]="!finvizUrlControl.valid" mat-raised-button color="accent"
+      (click)="fetchFinvizUrl()">Fetch Finviz</button>
+  </div>
+  <div>
+    <span *ngFor="let symbol of (currentList$ | async)">{{symbol}} </span>
+  </div>
+  <div style="display:inline-flex">
+    <mat-form-field style="width:20em">
+      <input (keyup.enter)="addToStockList()" matInput [formControl]="symbolControl">
+    </mat-form-field>
+    <button style="height: 3em;" [disabled]="!symbolControl.valid" mat-raised-button color="accent"
+      (click)="addToStockList()">Add</button>
+  </div>
+  <button mat-button (click)="RH.clearStockData()">Clear List</button>
+</section>

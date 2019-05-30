@@ -1,0 +1,75 @@
+<div style="text-align: center">
+  <h3 style="margin: 0;">{{stock.symbol}} - {{stock.instrument.name}}</h3>
+  <div class="quote-prices">
+    <div>
+      <span>
+        <span>Bid</span>
+        {{stock.quote.bid_price | currency}} ( {{stock.quote.bid_size}} )
+      </span>
+      <span style="font-weight:bold">
+        <span>Last Trade Price</span>
+        {{stock.quote.last_trade_price | currency}}
+      </span>
+      <span>
+        <span>Ask</span>
+        {{stock.quote.ask_price | currency}} ( {{stock.quote.ask_size}} )
+      </span>
+    </div>
+  </div>
+  <div style="display: inline-flex;margin-top:1em;">
+    <div style="margin:0 2em">
+      <div *ngIf="!stock.activeOrders">No Active Orders</div>
+      <div *ngIf="stock.activeOrders">
+        Active Orders
+        <div *ngFor="let order of stock.activeOrders">
+          {{order.side.toUpperCase()}} {{order.quantity | number:'1.0-1'}} at {{order.price | currency}} is
+          {{order.state}}
+          <button mat-button (click)="cancelOrder(order)">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin:0 2em" *ngIf="!placingOrder && !orderData" class="trade-form-container">
+      <div>
+        <mat-button-toggle-group style="width: 15em" [(ngModel)]="buyOrSell">
+          <mat-button-toggle style="width:50%" value="buy">
+            Buy
+          </mat-button-toggle>
+          <mat-button-toggle style="width:50%" value="sell">
+            Sell
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+      <form *ngIf="!loggingIn" [formGroup]="tradeForm" (ngSubmit)="placeOrder()">
+        <mat-form-field style="width: 4em">
+          <input matInput type="number" formControlName="quantity" placeholder="Quantity">
+        </mat-form-field>
+        <mat-form-field style="width: 4em">
+          <input matInput type="number" formControlName="price" placeholder="Price">
+        </mat-form-field>
+        <mat-form-field style="width: 4em">
+          <input matInput type="text" formControlName="time_in_force" placeholder="Time">
+        </mat-form-field>
+        <mat-form-field style="width: 5em">
+          <mat-select placeholder="Order Type" formControlName="type">
+            <mat-option *ngFor="let obj of types" [value]="obj.value">{{obj.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field style="width: 7em">
+          <mat-select placeholder="Trigger" formControlName="trigger">
+            <mat-option *ngFor="let obj of triggers" [value]="obj.value">{{obj.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="tradeForm.invalid">
+          {{buyOrSell.toUpperCase()}} ({{(tradeForm.get('quantity').value * tradeForm.get('price').value) | currency}})
+        </button>
+      </form>
+    </div>
+    <div *ngIf="orderData">
+      <h3>{{orderData.success ? 'SUCCESS' : 'ERROR'}}</h3>
+      {{orderData.error}}
+      {{orderData.order}}
+    </div>
+  </div>
+</div>
