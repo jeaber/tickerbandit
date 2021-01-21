@@ -72,7 +72,7 @@
     "request-promise": "^4.2.4",
     "request-promise-native": "^1.0.7",
     "robinhood": "^1.6.4",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "ts-loader": "^5.2.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
