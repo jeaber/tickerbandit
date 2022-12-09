@@ -37,7 +37,7 @@
     "@nguniversal/module-map-ngfactory-loader": "0.0.0",
     "@swimlane/ngx-charts": "^10.1.0",
     "core-js": "^2.5.4",
-    "express": "^4.15.2",
+    "express": "^4.18.2",
     "jeet": "^7.2.0",
     "rupture": "^0.7.1",
     "rxjs": "^6.3.3",
